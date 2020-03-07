@@ -2,7 +2,11 @@ var express = require('express');
 var fileupload = require('express-fileupload');
 var fs = require('fs');
 var utils = require('./utils.js');
+var db = require('./database');
+
 var app = express();
+
+db.init();
 
 app.use(fileupload({
     parseNested: true
@@ -27,9 +31,10 @@ app.post('/tracks', (req, res, next) => {
     });
 
     talks = utils.sortTalksByDuration(talks, 0, talks.length-1)
-    talks = utils.generateTracks(talks);
-
-    res.json({'talks': talks});
+    utils.generateTracks(talks, function(tracks) {
+        utils.printTracks(tracks);
+        res.json({'tracks': tracks});
+    });
 });
 
 app.listen(3000, () => {
