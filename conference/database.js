@@ -43,7 +43,20 @@ function executeQuery(sql, callback) {
 function lastId(callback) {
   return executeQuery('SELECT track_id AS trackId FROM tracks ORDER BY id DESC', function(err, results, fields) {
     if(!err) {
-      return callback(results[0].trackId);
+      if(results[0]) 
+        return callback(results[0].trackId);
+      else
+      return callback(0);
+    }
+    else 
+      console.log(err);
+  });
+}
+
+function getTracks(callback) {
+  return executeQuery('SELECT * FROM tracks', function(err, results, fields) {
+    if(!err) {
+      return callback(results);
     }
     else 
       console.log(err);
@@ -54,5 +67,6 @@ module.exports = {
     con : con,
     init : init,
     insertTrack : insertTrack,
-    lastId : lastId
+    lastId : lastId,
+    getTracks : getTracks
 }

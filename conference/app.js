@@ -12,8 +12,10 @@ app.use(fileupload({
     parseNested: true
 }));
 
-app.get("/url", (req, res, next) => {
-    res.json(["Tony","Lisa","Michael","Ginger","Food"]);
+app.get("/tracks", (req, res, next) => {
+    db.getTracks(function(tracks) {
+        res.json({'tracks': utils.db2json(tracks)});
+    });
 });
 
 app.post('/tracks', (req, res, next) => {
@@ -33,7 +35,7 @@ app.post('/tracks', (req, res, next) => {
     talks = utils.sortTalksByDuration(talks, 0, talks.length-1)
     utils.generateTracks(talks, function(tracks) {
         utils.printTracks(tracks);
-        res.json({'tracks': tracks});
+        res.json({'tracks': utils.formatTracks(tracks)});
     });
 });
 

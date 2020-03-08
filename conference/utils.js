@@ -27,6 +27,23 @@ module.exports.number2duration = function (number) {
     return number + 'min';
 }
 
+module.exports.formatTracks = function(tracks) {
+    for(var i = 0; i < tracks.length; i++) {
+        var track = tracks[i];
+
+        for(var j = 0; j < tracks[i].talks.length; j++) {
+            var talk = track.talks[j];
+
+            tracks[i].talks[j] = {
+                'title': talk.title, 
+                'duration': talk.duration ? this.number2duration(talk.duration) : "",
+                'beginTime': this.toHour(talk.beginTime)
+            }
+        }
+    }
+    return tracks;
+}
+
 module.exports.sortTalksByDuration = function(talks, begin, end) {
     var m = parseInt((begin + end)/2);
     var pivot = talks[m];
@@ -70,8 +87,9 @@ module.exports.generateTracks = function(talks, callback) {
 
 function generateTrack(talks, id) {
     var morningSession = generateSession(talks, 9, 12, id);
-    var afternoonSession = generateSession(talks, 13, 17, id);
     var lunch = {'title': 'Almoço', 'duration': 60, 'beginTime': 720};
+    db.insertTrack(id, lunch);
+    var afternoonSession = generateSession(talks, 13, 17, id);
     var networkingEvent = {'title': 'Evento de Networking', 'beginTime': 1020};
     return {'id': id, 'talks': morningSession.concat(lunch, afternoonSession, networkingEvent)};
 }
@@ -106,4 +124,30 @@ module.exports.printTracks = function(tracks) {
             console.log(begin + ' ' + talk.title + ' ' + duration);
         });
     });
+}
+
+module.exports.db2json = function(tracks) {
+    var json = [];
+    var lastTrackId = 0;
+
+    while(tracks.length > 0) {
+        var track = tracks.shift();
+
+        if(lastTrackId != track.track_id) {
+            if(json[lastTrackId-1])
+                json[lastTrackId-1].talks.push({'title': 'Evento de Networking', 'beginTime': 1020});
+
+            lastTrackId = track.track_id;
+            json[lastTrackId-1] = {'id': lastTrackId, 'talks': []};
+        }
+
+        json[lastTrackId-1].talks.push({
+            'title': track.title, 
+            'duration': this.number2duration(track.duration), 
+            'beginTime': this.toHour(track.beginTime)
+        });
+    }
+    json[json.length-1].talks.push({'title': 'Evento de Networking', 'beginTime': "17:00"});
+
+    return json;
 }
