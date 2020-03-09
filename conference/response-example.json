@@ -1,0 +1,34 @@
+{
+    "tracks": [
+        {
+            "id": 1,
+            "talks": [
+                {
+                    "title": Lorem ipsum dolor sit amet,
+                    "duration": 30,
+                    "beginTime": 540
+                },
+                {
+                    "title": Lorem ipsum dolor sit amet,
+                    "duration": 30,
+                    "beginTime": 570
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "talks": [
+                {
+                    "title": Lorem ipsum dolor sit amet,
+                    "duration": 30,
+                    "beginTime": 540
+                },
+                {
+                    "title": Lorem ipsum dolor sit amet,
+                    "duration": 30,
+                    "beginTime": 570
+                }
+            ]
+        }
+    ]
+}

@@ -8,7 +8,7 @@ module.exports.getTracks = function() {
   });
 }
 module.exports.postTracks = function() {
-    var fileName = 'proposals.txt';
+    var fileName = 'proposals2.txt';
     var formData = new FormData();
     var file = fs.readFileSync('./tests/'+fileName, 'utf-8');
 
@@ -16,6 +16,7 @@ module.exports.postTracks = function() {
     axios.post('http://localhost:3000/tracks', formData, {
         headers: formData.getHeaders()
     }).then(function(response) {
+        console.log(response.data);
         utils.printTracks(response.data.tracks);
     });
 }
