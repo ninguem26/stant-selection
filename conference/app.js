@@ -6,22 +6,27 @@ var db = require('./database');
 
 var app = express();
 
+const maxSessionTime = 240;
+
 db.init();
 
 app.use(fileupload({
     parseNested: true
 }));
 
+// GET all tracks from the database
 app.get("/tracks", (req, res, next) => {
     db.getTracks(function(tracks) {
         res.json({'tracks': utils.db2json(tracks)});
     });
 });
 
+// POST new tracks to the tracks database
 app.post('/tracks', (req, res, next) => {
-    var file = req.files.proposals;
-    
+    var file = req.body.proposals;
+    file = JSON.parse(file);
     fs.writeFileSync('./uploads/'+file.name, file.data);
+
     var proposals = fs.readFileSync('./uploads/'+file.name, 'utf-8').split('\n');
     var talks = [];
 
@@ -29,13 +34,14 @@ app.post('/tracks', (req, res, next) => {
         var terms = p.split(' ');
         var duration = utils.duration2number(terms.pop());
         var title = terms.join(' ');
-        talks.push({'title': title, 'duration': duration});
+
+        if(duration <= maxSessionTime) 
+            talks.push({'title': title, 'duration': duration});
     });
 
     talks = utils.sortTalksByDuration(talks, 0, talks.length-1)
     utils.generateTracks(talks, function(tracks) {
-        utils.printTracks(tracks);
-        res.json({'tracks': utils.formatTracks(tracks)});
+        res.json({'tracks': tracks});
     });
 });
 

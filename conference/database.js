@@ -1,4 +1,5 @@
-var mysql = require('mysql');//Inclui a biblioteca instalada do Mysql
+var mysql = require('mysql');
+
 var con = mysql.createConnection({
   host: 'localhost',
   user: 'root',

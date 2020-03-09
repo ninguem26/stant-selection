@@ -1,27 +1,23 @@
 var db = require('./database');
 
 module.exports.toHour = function(minutes) {
-    var hours = minutes/60;
+    var hours = parseInt(minutes/60);
     minutes = minutes % 60;
 
-    if(minutes < 10) {
-        minutes = '0' + minutes;
-    }
+    if(minutes < 10) minutes = '0' + minutes;
+    if(hours < 10) hours = '0' + hours;
 
-    return parseInt(hours) + ':' + minutes;
+    return hours + ':' + minutes;
 }
 
-module.exports.duration2number = function (durationString) {
+module.exports.duration2number = function(durationString) {
     if(durationString == 'lightning') return 5;
 
-    var number = "";
-    for(var i = 0; i < durationString.length; i++) {
-        if(!isNaN(parseInt(durationString[i]))) number += durationString[i];
-    }
-    return parseInt(number);
+    var number = durationString.split('m');
+    return parseInt(number[0]);
 }
 
-module.exports.number2duration = function (number) {
+module.exports.number2duration = function(number) {
     if(number == 5) return 'lightning';
 
     return number + 'min';
@@ -78,10 +74,11 @@ module.exports.generateTracks = function(talks, callback) {
         var tracks = [];
 
         id++;
-        while(talks.length > 0) {
+        do {
             tracks.push(generateTrack(talks, id++));
-        }
-        return callback(tracks);    
+        } while(talks.length > 0);
+        
+        return callback(tracks);
     });
 }
 
@@ -116,8 +113,9 @@ function generateSession(talks, beginHour, endHour, trackId) {
 }
 
 module.exports.printTracks = function(tracks) {
+    var i = 0;
     tracks.forEach(track => {
-        console.log('Track ' + String.fromCharCode(64 + track.id) + ':');
+        console.log('Track ' + String.fromCharCode(65 + i++) + ':');
         track.talks.forEach(talk => {
             var begin = this.toHour(talk.beginTime);
             var duration = talk.duration ? this.number2duration(talk.duration) : '';
@@ -128,26 +126,27 @@ module.exports.printTracks = function(tracks) {
 
 module.exports.db2json = function(tracks) {
     var json = [];
-    var lastTrackId = 0;
+    var trackId = 1;
+    var netEvent = {'title': 'Evento de Networking', 'beginTime': 1020}
 
     while(tracks.length > 0) {
         var track = tracks.shift();
 
-        if(lastTrackId != track.track_id) {
-            if(json[lastTrackId-1])
-                json[lastTrackId-1].talks.push({'title': 'Evento de Networking', 'beginTime': 1020});
-
-            lastTrackId = track.track_id;
-            json[lastTrackId-1] = {'id': lastTrackId, 'talks': []};
+        if(trackId != track.track_id) {
+            json[trackId-1].talks.push(netEvent);
+            trackId = track.track_id;
         }
 
-        json[lastTrackId-1].talks.push({
+        if(!json[trackId-1])
+            json[trackId-1] = {'id': trackId, 'talks': []};
+
+        json[trackId-1].talks.push({
             'title': track.title, 
-            'duration': this.number2duration(track.duration), 
-            'beginTime': this.toHour(track.beginTime)
+            'duration': track.duration, 
+            'beginTime': track.beginTime
         });
     }
-    json[json.length-1].talks.push({'title': 'Evento de Networking', 'beginTime': "17:00"});
+    json[json.length-1].talks.push(netEvent);
 
     return json;
 }
