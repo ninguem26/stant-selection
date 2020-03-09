@@ -1,5 +1,6 @@
 var mysql = require('mysql');
 
+// Set the user and password to access the database
 var con = mysql.createConnection({
   host: 'localhost',
   user: 'root',

@@ -23,23 +23,6 @@ module.exports.number2duration = function(number) {
     return number + 'min';
 }
 
-module.exports.formatTracks = function(tracks) {
-    for(var i = 0; i < tracks.length; i++) {
-        var track = tracks[i];
-
-        for(var j = 0; j < tracks[i].talks.length; j++) {
-            var talk = track.talks[j];
-
-            tracks[i].talks[j] = {
-                'title': talk.title, 
-                'duration': talk.duration ? this.number2duration(talk.duration) : "",
-                'beginTime': this.toHour(talk.beginTime)
-            }
-        }
-    }
-    return tracks;
-}
-
 module.exports.sortTalksByDuration = function(talks, begin, end) {
     var m = parseInt((begin + end)/2);
     var pivot = talks[m];
@@ -84,11 +67,12 @@ module.exports.generateTracks = function(talks, callback) {
 
 function generateTrack(talks, id) {
     var morningSession = generateSession(talks, 9, 12, id);
-    var lunch = {'title': 'Almoço', 'duration': 60, 'beginTime': 720};
-    db.insertTrack(id, lunch);
+    //var lunch = {'title': 'Almoço', 'duration': 60, 'beginTime': 720};
+    //db.insertTrack(id, lunch);
     var afternoonSession = generateSession(talks, 13, 17, id);
     var networkingEvent = {'title': 'Evento de Networking', 'beginTime': 1020};
-    return {'id': id, 'talks': morningSession.concat(lunch, afternoonSession, networkingEvent)};
+    //return {'id': id, 'talks': morningSession.concat(lunch, afternoonSession, networkingEvent)};
+    return {'id': id, 'talks': morningSession.concat(afternoonSession)};
 }
 
 function generateSession(talks, beginHour, endHour, trackId) {
@@ -112,16 +96,37 @@ function generateSession(talks, beginHour, endHour, trackId) {
     return bag;
 }
 
+module.exports.printSession = function(talks, beginHour, endHour) {
+    var bagSize = (endHour - beginHour)*60;
+    var i = 0;
+
+    while(i < talks.length) {
+        if(talks[i].duration <= bagSize) {
+            var begin = this.toHour(talks[i].beginTime);
+            var duration = talks[i].duration ? this.number2duration(talks[i].duration) : '';
+            console.log(begin + ' ' + talks[i].title + ' ' + duration);
+            
+            bagSize -= talks[i].duration;
+            talks.splice(i, 1);
+        } else i++;
+    }
+}
+
 module.exports.printTracks = function(tracks) {
     var i = 0;
-    tracks.forEach(track => {
-        console.log('Track ' + String.fromCharCode(65 + i++) + ':');
-        track.talks.forEach(talk => {
-            var begin = this.toHour(talk.beginTime);
-            var duration = talk.duration ? this.number2duration(talk.duration) : '';
-            console.log(begin + ' ' + talk.title + ' ' + duration);
+    if(tracks.length > 0) {
+        tracks.forEach(track => {
+            console.log('Track ' + String.fromCharCode(65 + i++) + ':');
+            this.printSession(track.talks, 9, 12);
+            console.log('12:00 Almoço 60min');
+            this.printSession(track.talks, 13, 17);
+            console.log('17:00 Evento de Networking');    
         });
-    });
+    } else {
+        console.log('Track A:');
+        console.log('12:00 Almoço 60min');
+        console.log('17:00 Evento de Networking');
+    }
 }
 
 module.exports.db2json = function(tracks) {
@@ -133,7 +138,7 @@ module.exports.db2json = function(tracks) {
         var track = tracks.shift();
 
         if(trackId != track.track_id) {
-            json[trackId-1].talks.push(netEvent);
+            //json[trackId-1].talks.push(netEvent);
             trackId = track.track_id;
         }
 
@@ -146,7 +151,7 @@ module.exports.db2json = function(tracks) {
             'beginTime': track.beginTime
         });
     }
-    json[json.length-1].talks.push(netEvent);
+    //if(json.length > 0) json[json.length-1].talks.push(netEvent);
 
     return json;
 }

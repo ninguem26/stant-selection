@@ -25,9 +25,9 @@ app.get("/tracks", (req, res, next) => {
 app.post('/tracks', (req, res, next) => {
     var file = req.body.proposals;
     file = JSON.parse(file);
-    fs.writeFileSync('./uploads/'+file.name, file.data);
+    fs.writeFileSync('./uploads/proposals.txt', file.data);
 
-    var proposals = fs.readFileSync('./uploads/'+file.name, 'utf-8').split('\n');
+    var proposals = fs.readFileSync('./uploads/proposals.txt', 'utf-8').split('\n');
     var talks = [];
 
     proposals.forEach(function(p) {
