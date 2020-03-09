@@ -17,10 +17,10 @@ Para instalar as dependências basta executar o comando `npm install`.
 ### Banco de dados
 Para o projeto funcionar é necessário criar um banco de dados MySQL. Acesse um cliente MySQL e execute `CREATE DATABASE stant;`.
 
-Para acessar o banco, edite o arquivo `database.js` na raíz do projeto com as credenciais corretas.
+Para acessar o banco, edite o arquivo `database.js` no diretório `conference` com as credenciais corretas.
 
 ### Executando o projeto
-Para executar o projeto, acesse o diretório raíz e execute o comando `node app.js`. Este comando vai iniciar a API Rest na porta `3000` do `localhost`.
+Para executar o projeto, acesse o diretório `conference` e execute o comando `node app.js`. Este comando vai iniciar a API Rest na porta `3000` do `localhost`.
 
 O arquivo `test.js` já possui uma implementação do acesso à API. Para executar, abra um novo terminal e execute o comando `node -e 'require("./test").postTracks()'` para enviar uma requisição POST ou o comando `node -e 'require("./test").getTracks()'` para enviar uma requisição GET.
 
