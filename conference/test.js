@@ -8,7 +8,7 @@ module.exports.getTracks = function() {
   });
 }
 module.exports.postTracks = function() {
-    var fileName = 'proposals2.txt';
+    var fileName = 'proposals.txt';
     var formData = new FormData();
     var file = fs.readFileSync('./tests/'+fileName, 'utf-8');
 
