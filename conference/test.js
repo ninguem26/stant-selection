@@ -16,7 +16,6 @@ module.exports.postTracks = function() {
     axios.post('http://localhost:3000/tracks', formData, {
         headers: formData.getHeaders()
     }).then(function(response) {
-        console.log(response.data);
         utils.printTracks(response.data.tracks);
     });
 }
